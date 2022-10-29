@@ -13,7 +13,7 @@ set -e
 
 BL=$(cd $(dirname $0);pwd)
 BD=$HOME/builds
-VERSION="TDA_0.4.0"
+VERSION="8.7.14"
 
 initrepo() {
 if [ ! -d .repo ]
@@ -21,7 +21,7 @@ then
     echo ""
     echo "--> Initializing Miku UI workspace"
     echo ""
-    repo init -u https://github.com/Miku-UI/manifesto -b TDA --depth=1
+    repo init -u https://github.com/IDN-Labs/platform_manifest -b Q --depth=1
 fi
 
 if [ -d .repo ] && [ ! -f .repo/local_manifests/miku-treble.xml ] ;then
@@ -107,37 +107,18 @@ buildtreble() {
     echo ""
     echo "--> Building treble image"
     echo ""
-    lunch miku_treble_arm64_bvN-userdebug
+    lunch rr_treble_arm64_bvN-userdebug
     make installclean
     make -j$(nproc --all) systemimage
-    mv $OUT/system.img $BD/system-miku_treble_arm64_bvN.img
+    mv $OUT/system.img $BD/system-rr_treble_arm64_bvN.img
     sleep 1
-    lunch miku_treble_arm64_bgN-userdebug
-    make -j$(nproc --all) systemimage
-    mv $OUT/system.img $BD/system-miku_treble_arm64_bgN.img
-}
-
-buildSasImages() {
-    echo ""
-    echo "--> Building vndklite variant"
-    echo ""
-    cd sas-creator
-    sudo bash lite-adapter.sh 64 $BD/system-miku_treble_arm64_bvN.img
-    cp s.img $BD/system-miku_treble_arm64_bvN-vndklite.img
-    sudo rm -rf s.img d tmp
-    sudo bash lite-adapter.sh 64 $BD/system-miku_treble_arm64_bgN.img
-    cp s.img $BD/system-miku_treble_arm64_bgN-vndklite.img
-    sudo rm -rf s.img d tmp
-    cd ..
-}
-
 generatePackages() {
     echo ""
     echo "--> Generating packages"
     echo ""
-    BASE_IMAGE=$BD/system-miku_treble_arm64_bvN.img
+    BASE_IMAGE=$BD/system-rr_treble_arm64_bvN.img
     mkdir --parents $BD/dsu/vanilla/; mv $BASE_IMAGE $BD/dsu/vanilla/system.img
-    zip -j -v $BD/MikuUI-$VERSION-arm64-ab-$BUILD_DATE-UNOFFICIAL.zip $BD/dsu/vanilla/system.img
+    zip -j -v $BD/RROS-$VERSION-arm64-ab-$BUILD_DATE-UNOFFICIAL.zip $BD/dsu/vanilla/system.img
     mkdir --parents $BD/dsu/vanilla-vndklite/; mv ${BASE_IMAGE%.img}-vndklite.img $BD/dsu/vanilla-vndklite/system.img
     zip -j -v $BD/MikuUI-$VERSION-arm64-ab-vndklite-$BUILD_DATE-UNOFFICIAL.zip $BD/dsu/vanilla-vndklite/system.img
     BASE_IMAGE=$BD/system-miku_treble_arm64_bgN.img
