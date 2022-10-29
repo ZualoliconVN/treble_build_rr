@@ -112,6 +112,24 @@ buildtreble() {
     make -j$(nproc --all) systemimage
     mv $OUT/system.img $BD/system-rr_treble_arm64_bvN.img
     sleep 1
+    lunch miku_treble_arm64_bgN-userdebug
+    make -j$(nproc --all) systemimage
+    mv $OUT/system.img $BD/system-miku_treble_arm64_bgN.img
+}
+
+buildSasImages() {
+    echo ""
+    echo "--> Building vndklite variant"
+    echo ""
+    cd sas-creator
+    sudo bash lite-adapter.sh 64 $BD/system-miku_treble_arm64_bvN.img
+    cp s.img $BD/system-miku_treble_arm64_bvN-vndklite.img
+    sudo rm -rf s.img d tmp
+    sudo bash lite-adapter.sh 64 $BD/system-miku_treble_arm64_bgN.img
+    cp s.img $BD/system-miku_treble_arm64_bgN-vndklite.img
+    sudo rm -rf s.img d tmp
+    cd ..
+}
 generatePackages() {
     echo ""
     echo "--> Generating packages"
@@ -175,7 +193,7 @@ buildtreble
 buildSasImages
 generatePackages
 generateOtaJson
-if [ $USER == xiaolegun ];then
+if [ $USER == ZualoliconVN ];then
 personal
 fi
 
